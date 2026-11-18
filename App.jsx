@@ -240,7 +240,7 @@ const TRANSLATIONS = {
     noteBodyPlaceholder: 'Write detailed study notes, summaries, or thoughts here (supports Arabic & English)...',
     saveNoteBtn: 'Save Note to Cloud',
     diaryStudioTitle: 'Long-Form Diary & Art Studio',
-    diaryStudioSub: 'Write expansive reflections, paint with Apple Pencil & pro brushes, and choose Private or Public sharing.',
+    diaryStudioSub: 'Write expansive reflections, paint with Apple Pencil & pro brushes, and choose Private or Friends-only sharing.',
     openCanvasBtn: 'Open Pro Drawing Canvas',
     hideCanvasBtn: 'Hide Drawing Studio',
     entryTitlePlaceholder: 'Entry Title (e.g., Late night reflections & gratitude)...',
@@ -248,7 +248,7 @@ const TRANSLATIONS = {
     attachPhoto: 'Attach Photo',
     drawStickers: 'Draw / Stickers',
     privateOnlyMe: 'Private (Only Me)',
-    publicFriends: 'Public (Friends)',
+    publicFriends: 'Friends only',
     saveEntryBtn: 'Save Entry',
     privateVaultTitle: 'My Private Diary Vault',
     privateVaultEmpty: 'Your private entries are encrypted in your personal vault and never visible to anyone else.',
@@ -286,7 +286,7 @@ const TRANSLATIONS = {
     exercisePlaceholder: 'Exercise (e.g., Squats, 5km Run, Yoga)',
     setsPlaceholder: 'Sets / Reps / Duration (e.g., 4×10 @ 60kg)',
     addWorkoutBtn: 'Add Workout',
-    socialTitle: 'Friends, Shared Goals & Public Feed',
+    socialTitle: 'Friends, Shared Goals & Friends Feed',
     socialSub: 'Choose your custom Friend Code, connect with your bestie, cheer on shared goals, and chat privately.',
     yourFriendCode: 'Your Custom Friend Code / Handle',
     customizeCodePlaceholder: 'Choose custom code (e.g., SARA26)',
@@ -309,8 +309,8 @@ const TRANSLATIONS = {
     friendsListEmpty: 'Your friends list is empty. Share your custom Friend Code above!',
     selectFriendChat: 'Select a friend on the left to start a private chat.',
     messagePlaceholder: 'Message',
-    publicFeedTitle: 'Public Diary & Art Feed',
-    publicFeedEmpty: 'No public diary posts yet. Toggle "Public (Friends)" in the Diary tab to share your first entry!',
+    publicFeedTitle: 'Friends Diary & Art Feed',
+    publicFeedEmpty: 'No posts from you or your friends yet. Choose "Friends only" in the Diary tab to share an entry with your friends!',
     likesLabel: 'Likes',
     repliesLabel: 'Replies',
     replyPlaceholder: 'Write a warm reply...',
@@ -396,7 +396,7 @@ const TRANSLATIONS = {
     noteBodyPlaceholder: 'اكتب ملاحظاتك الدراسية أو ملخصاتك أو أفكارك بالتفصيل هنا...',
     saveNoteBtn: 'حفظ الملاحظة في السحابة',
     diaryStudioTitle: 'اليوميات الطويلة واستوديو الرسم',
-    diaryStudioSub: 'اكتب يومياتك بكل حرية، ارسم بقلم الآيباد والفرش الاحترافية، واختر بين الخاص أو العام.',
+    diaryStudioSub: 'اكتب يومياتك بكل حرية، ارسم بقلم الآيباد والفرش الاحترافية، واختر بين الخاص أو للأصدقاء فقط.',
     openCanvasBtn: 'افتح لوحة الرسم الاحترافية',
     hideCanvasBtn: 'إخفاء لوحة الرسم',
     entryTitlePlaceholder: 'عنوان اليومية (مثل: تأملات آخر الليل وامتنان)...',
@@ -404,7 +404,7 @@ const TRANSLATIONS = {
     attachPhoto: 'إرفاق صورة',
     drawStickers: 'رسم / طوابع',
     privateOnlyMe: 'خاص (لي وحدي)',
-    publicFriends: 'عام (للأصدقاء)',
+    publicFriends: 'للأصدقاء فقط',
     saveEntryBtn: 'حفظ التدوينة',
     privateVaultTitle: 'خزنة يومياتي الخاصة',
     privateVaultEmpty: 'يومياتك الخاصة مشفّرة ومحفوظة لكِ وحدك ولا يمكن لأي شخص آخر رؤيتها.',
@@ -442,7 +442,7 @@ const TRANSLATIONS = {
     exercisePlaceholder: 'اسم التمرين (مثل: سكوات، مشي سريع، كارديو)',
     setsPlaceholder: 'الجولات والتكرار (مثل: 4×12)',
     addWorkoutBtn: 'إضافة تمرين',
-    socialTitle: 'الأصدقاء، الأهداف المشتركة واليوميات العامة',
+    socialTitle: 'الأصدقاء، الأهداف المشتركة ويوميات الأصدقاء',
     socialSub: 'اختاري كود صداقتك المميز بنفسك، أضيفي صديقتك، ضعوا أهدافاً مشتركة، وتحدثوا في الخاص.',
     yourFriendCode: 'كود الصداقة المخصص لكِ (اختاريه بنفسك)',
     customizeCodePlaceholder: 'اكتبي كودك المميز (مثل: SARA26)',
@@ -465,8 +465,8 @@ const TRANSLATIONS = {
     friendsListEmpty: 'قائمة الأصدقاء فارغة حالياً. شاركي كودك المميز مع صديقتك!',
     selectFriendChat: 'اختاري صديقة من القائمة لبدء محادثة خاصة.',
     messagePlaceholder: 'اكتبي رسالة لـ',
-    publicFeedTitle: 'صفحة اليوميات والرسومات العامة',
-    publicFeedEmpty: 'لا توجد منشورات عامة بعد. فعّلي خيار "عام (للأصدقاء)" في صفحة اليوميات لمشاركة أول تدوينة!',
+    publicFeedTitle: 'يوميات ورسومات الأصدقاء',
+    publicFeedEmpty: 'لا توجد منشورات منك أو من أصدقائك بعد. اختاري "للأصدقاء فقط" في صفحة اليوميات لمشاركة أول تدوينة!',
     likesLabel: 'إعجاب',
     repliesLabel: 'ردود',
     replyPlaceholder: 'اكتبي رداً لطيفاً...',
@@ -1161,13 +1161,6 @@ export default function App() {
       (err) => console.error(err)
     );
 
-    // Public Diaries Feed
-    const unsubPubDiaries = onSnapshot(
-      collection(db, 'artifacts', appId, 'public', 'data', 'public_diaries'),
-      (snap) => setPublicDiaries(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))),
-      (err) => console.error(err)
-    );
-
     // AI Therapist Messages (Strictly Private)
     const unsubAi = onSnapshot(
       collection(db, 'artifacts', appId, 'users', uid, 'ai_therapist_chat'),
@@ -1232,7 +1225,6 @@ export default function App() {
       unsubFinance();
       unsubWorkouts();
       unsubPrivDiaries();
-      unsubPubDiaries();
       unsubAi();
       unsubFriends();
       unsubRequests();
@@ -1240,6 +1232,30 @@ export default function App() {
       unsubDMs();
     };
   }, [user]);
+
+  // Friends Diary Feed: your own posts + posts by your friends only.
+  // One listener per author so firestore.rules can check the friendship.
+  const friendUidsKey = friends.map(f => f.uid || f.id).filter(Boolean).sort().join(',');
+  useEffect(() => {
+    if (!user) return;
+    const authors = [user.uid, ...(friendUidsKey ? friendUidsKey.split(',') : [])];
+    const byAuthor = {};
+    const emit = () => setPublicDiaries(
+      Object.values(byAuthor).flat().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+    );
+    const unsubs = authors.map(authorUid => onSnapshot(
+      query(
+        collection(db, 'artifacts', appId, 'public', 'data', 'public_diaries'),
+        where('authorUid', '==', authorUid)
+      ),
+      (snap) => {
+        byAuthor[authorUid] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        emit();
+      },
+      (err) => console.error('Feed sync error:', err)
+    ));
+    return () => unsubs.forEach(u => u());
+  }, [user, friendUidsKey]);
 
   // ==========================================================================
   // THEME, LANGUAGE & CUSTOM FRIEND CODE UPDATERS
@@ -1694,7 +1710,15 @@ Provide a structured report (in the same language as their entries, or English/A
         showToast(lang === 'ar' ? 'أنتما أصدقاء بالفعل!' : 'You are already friends!');
         return;
       }
-      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'friend_requests'), {
+      // Deterministic id (<from>_<to>) lets firestore.rules confirm an accepted
+      // request exists before anyone is added to a friends list.
+      const reqRef = doc(db, 'artifacts', appId, 'public', 'data', 'friend_requests', `${user.uid}_${found.uid}`);
+      const existing = await getDoc(reqRef).catch(() => null);
+      if (existing?.exists()) {
+        showToast(lang === 'ar' ? 'لقد أرسلت طلب صداقة لهذا المستخدم مسبقاً' : 'You already sent this user a friend request');
+        return;
+      }
+      await setDoc(reqRef, {
         fromUid: user.uid,
         fromName: profile.displayName,
         fromAvatar: profile.avatar,
@@ -2819,7 +2843,7 @@ Provide a structured report (in the same language as their entries, or English/A
                           color: diaryPrivacy === 'public' ? '#ffffff' : currentTheme.muted
                         }}
                       >
-                        <Globe className="w-3.5 h-3.5" />
+                        <Users className="w-3.5 h-3.5" />
                         <span>{t.publicFriends}</span>
                       </button>
                     </div>
@@ -3557,7 +3581,7 @@ Provide a structured report (in the same language as their entries, or English/A
               {/* Public Diary & Artwork Feed */}
               <div className="space-y-4">
                 <h3 className="font-bold text-lg flex items-center gap-2">
-                  <Globe className="w-5 h-5" style={{ color: 'var(--accent)' }} />
+                  <Users className="w-5 h-5" style={{ color: 'var(--accent)' }} />
                   <span>{t.publicFeedTitle}</span>
                 </h3>
 

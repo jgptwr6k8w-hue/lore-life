@@ -20,12 +20,14 @@ service cloud.firestore {
           allow read, write: if isMe(uid);
         }
 
-        // Friends list: the owner manages it; when a request is accepted the
-        // accepter may add *themselves* to the requester's list.
+        // Friends list: the owner manages it. Someone else may add *themselves*
+        // only after accepting a friend request this user sent them.
         match /friends/{friendUid} {
           allow read, delete: if isMe(uid);
           allow create, update: if isMe(uid)
-            || (isMe(friendUid) && request.resource.data.uid == friendUid);
+            || (isMe(friendUid)
+                && request.resource.data.uid == friendUid
+                && get(/databases/$(database)/documents/artifacts/$(appId)/public/data/friend_requests/$(uid + '_' + friendUid)).data.status == 'accepted');
         }
       }
 
@@ -38,22 +40,31 @@ service cloud.firestore {
           allow write: if isMe(uid);
         }
 
-        // Diaries published to the friends feed.
+        // Diaries shared with friends: only the author and the author's
+        // friends can see, like or comment on them.
         match /public_diaries/{postId} {
-          allow read: if signedIn();
+          function isAuthor() {
+            return signedIn() && resource.data.authorUid == request.auth.uid;
+          }
+          function isAuthorsFriend() {
+            return signedIn() && exists(
+              /databases/$(database)/documents/artifacts/$(appId)/users/$(resource.data.authorUid)/friends/$(request.auth.uid)
+            );
+          }
+          allow read: if isAuthor() || isAuthorsFriend();
           allow create: if signedIn() && request.resource.data.authorUid == request.auth.uid;
-          allow delete: if signedIn() && resource.data.authorUid == request.auth.uid;
-          allow update: if signedIn() && (
-            resource.data.authorUid == request.auth.uid
-            || onlyChanges(['likes', 'comments'])
-          );
+          allow delete: if isAuthor();
+          allow update: if isAuthor()
+            || (isAuthorsFriend() && onlyChanges(['likes', 'comments']));
         }
 
         match /friend_requests/{reqId} {
           allow read: if signedIn()
             && (resource.data.toUid == request.auth.uid || resource.data.fromUid == request.auth.uid);
+          allow get: if signedIn() && reqId.matches('^' + request.auth.uid + '_.*');
           allow create: if signedIn()
             && request.resource.data.fromUid == request.auth.uid
+            && reqId == request.auth.uid + '_' + request.resource.data.toUid
             && request.resource.data.status == 'pending';
           allow update: if signedIn()
             && resource.data.toUid == request.auth.uid
