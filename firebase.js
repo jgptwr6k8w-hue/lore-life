@@ -1,44 +1,56 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  setDoc, 
-  addDoc, 
-  getDocs, 
-  query, 
-  where, 
-  serverTimestamp,
-  deleteDoc 
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  serverTimestamp
 } from "firebase/firestore";
 
-// ضعِ بيانات مشروعك في Firebase هنا
+// Firebase config comes from VITE_FIREBASE_* env vars (.env locally, Netlify env vars in production).
+// See .env.example. These values are public client identifiers, not secrets — access is
+// controlled by firestore.rules.
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
+export const missingFirebaseKeys = Object.entries(firebaseConfig)
+  .filter(([key, value]) => !value && key !== 'storageBucket' && key !== 'messagingSenderId')
+  .map(([key]) => key);
+
+if (missingFirebaseKeys.length) {
+  console.error(
+    `[lore] Missing Firebase config: ${missingFirebaseKeys.join(', ')}. ` +
+    'Copy .env.example to .env and fill in your Firebase web app config.'
+  );
+}
+
 // تهيئة Firebase
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Namespace for all app data in Firestore: artifacts/{appId}/...
+export const appId = import.meta.env.VITE_LORE_APP_ID || 'lore-life-os-v1';
 
 // ==========================================
 // دوال إدارة الـ Likes والـ Comments (الجديدة)
 // ==========================================
 
-// 1. إضافة أو إلغاء إعجاب (Toggle Like)
+// 1. إضافة إعجاب (Like)
 export const toggleLike = async (userId, postId) => {
   const likeId = `${userId}_${postId}`;
   const likeRef = doc(db, "likes", likeId);
-  
-  // تحقق هل الإعجاب موجود مسبقاً؟
-  // يمكنك استخدام getDoc للتحقق أو جعله يضيف ويحذف مباشرة
   try {
     await setDoc(likeRef, {
       user: userId,

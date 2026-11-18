@@ -1,0 +1,98 @@
+rules_version = '2';
+
+// Security rules for Lore. Deploy with:  npx firebase-tools deploy --only firestore:rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    match /artifacts/{appId} {
+
+      // ---------- Private per-user data ----------
+      match /users/{uid} {
+        // tasks, schedule, notes, goals, transactions, workouts,
+        // private_diaries, ai_therapist_chat, settings/profile
+        match /{collection}/{docId} {
+          allow read, write: if isMe(uid);
+        }
+
+        // Friends list: the owner manages it; when a request is accepted the
+        // accepter may add *themselves* to the requester's list.
+        match /friends/{friendUid} {
+          allow read, delete: if isMe(uid);
+          allow create, update: if isMe(uid)
+            || (isMe(friendUid) && request.resource.data.uid == friendUid);
+        }
+      }
+
+      // ---------- Shared / social data ----------
+      match /public/data {
+
+        // Public profile card (name, avatar, friend code, bio).
+        match /user_directory/{uid} {
+          allow read: if signedIn();
+          allow write: if isMe(uid);
+        }
+
+        // Diaries published to the friends feed.
+        match /public_diaries/{postId} {
+          allow read: if signedIn();
+          allow create: if signedIn() && request.resource.data.authorUid == request.auth.uid;
+          allow delete: if signedIn() && resource.data.authorUid == request.auth.uid;
+          allow update: if signedIn() && (
+            resource.data.authorUid == request.auth.uid
+            || onlyChanges(['likes', 'comments'])
+          );
+        }
+
+        match /friend_requests/{reqId} {
+          allow read: if signedIn()
+            && (resource.data.toUid == request.auth.uid || resource.data.fromUid == request.auth.uid);
+          allow create: if signedIn()
+            && request.resource.data.fromUid == request.auth.uid
+            && request.resource.data.status == 'pending';
+          allow update: if signedIn()
+            && resource.data.toUid == request.auth.uid
+            && onlyChanges(['status']);
+          allow delete: if signedIn()
+            && (resource.data.toUid == request.auth.uid || resource.data.fromUid == request.auth.uid);
+        }
+
+        match /shared_goals/{goalId} {
+          allow read: if signedIn()
+            && (resource.data.ownerUid == request.auth.uid || resource.data.partnerUid == request.auth.uid);
+          allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+          allow update: if signedIn() && (
+            (resource.data.ownerUid == request.auth.uid && onlyChanges(['ownerProgress', 'title']))
+            || (resource.data.partnerUid == request.auth.uid && onlyChanges(['partnerProgress']))
+          );
+          allow delete: if signedIn() && resource.data.ownerUid == request.auth.uid;
+        }
+
+        match /direct_messages/{msgId} {
+          allow read: if signedIn()
+            && (resource.data.senderUid == request.auth.uid || resource.data.receiverUid == request.auth.uid);
+          allow create: if signedIn() && request.resource.data.senderUid == request.auth.uid;
+          allow delete: if signedIn() && resource.data.senderUid == request.auth.uid;
+        }
+      }
+    }
+
+    // Top-level likes/comments used by the helpers in firebase.js.
+    match /likes/{likeId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.resource.data.user == request.auth.uid
+        && likeId == request.auth.uid + '_' + request.resource.data.post;
+      allow delete: if signedIn() && resource.data.user == request.auth.uid;
+    }
+    match /comments/{commentId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.user == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.user == request.auth.uid;
+    }
+  }
+}
