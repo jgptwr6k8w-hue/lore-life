@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Netlify's free plan injects a "Powered by Netlify" badge (64px tall) in the
+   bottom corner. When it's present, leave room under the mobile nav so the
+   badge doesn't cover the buttons. The class is set in main.jsx. */
+@media (max-width: 767px) {
+  .has-netlify-badge .lore-bottom-nav {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+  .has-netlify-badge .lore-main {
+    padding-bottom: calc(6rem + 64px + env(safe-area-inset-bottom, 0px));
+  }
+}

@@ -1980,7 +1980,7 @@ Provide a structured report (in the same language as their entries, or English/A
       </header>
 
       <nav
-        className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center justify-around py-2 px-1 border-t backdrop-blur-md"
+        className="lore-bottom-nav md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center justify-around py-2 px-1 border-t backdrop-blur-md"
         style={{ backgroundColor: currentTheme.surface, borderColor: currentTheme.border }}
       >
         {navItems.map(item => {
@@ -2175,7 +2175,7 @@ Provide a structured report (in the same language as their entries, or English/A
       {/* ==================================================================== */}
       {/* MAIN CONTENT WORKSPACE                                               */}
       {/* ==================================================================== */}
-      <main className={`flex-1 ${isRTL ? 'md:pr-64' : 'md:pl-64'} pb-24 md:pb-10`}>
+      <main className={`lore-main flex-1 ${isRTL ? 'md:pr-64' : 'md:pl-64'} pb-24 md:pb-10`}>
         <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
           {/* ================================================================ */}
           {/* TAB 1: SMART SECRETARY & LIFE DASHBOARD                          */}
