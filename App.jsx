@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { initializeApp } from 'firebase/app';
 import {
-  getAuth,
   signInAnonymously,
-  signInWithCustomToken,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -13,7 +10,6 @@ import {
   updateProfile
 } from 'firebase/auth';
 import {
-  getFirestore,
   doc,
   getDoc,
   setDoc,
@@ -21,8 +17,11 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot,
-  collection
+  collection,
+  query,
+  where
 } from 'firebase/firestore';
+import { auth, db, appId } from './firebase.js';
 import {
   Sparkles,
   BookOpen,
@@ -76,37 +75,17 @@ import {
 } from 'lucide-react';
 
 // ============================================================================
-// FIREBASE CONFIGURATION & INITIALIZATION
-// ============================================================================
-const firebaseConfig = typeof __firebase_config !== 'undefined'
-  ? JSON.parse(__firebase_config)
-  : { apiKey: "demo-key", authDomain: "demo.firebaseapp.com", projectId: "demo-project" };
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'lore-life-os-v1';
-
-// ============================================================================
-// GEMINI AI HELPER (BUILT-IN ZERO-SETUP INTEGRATION)
+// GEMINI AI HELPER
+// Calls our own /api/gemini endpoint (Netlify Function in production, Vite
+// middleware in dev) so the Gemini API key never ships to the browser.
 // ============================================================================
 async function callGeminiAPI({ prompt, systemInstruction = '', temperature = 0.7 }) {
-  const apiKey = "";
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-  const payload = {
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: { temperature }
-  };
-
-  if (systemInstruction) {
-    payload.systemInstruction = { parts: [{ text: systemInstruction }] };
-  }
+  const payload = { prompt, systemInstruction, temperature };
 
   let delay = 1000;
   for (let attempt = 0; attempt < 4; attempt++) {
     try {
-      const response = await fetch(apiUrl, {
+      const response = await fetch('/api/gemini', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -117,10 +96,11 @@ async function callGeminiAPI({ prompt, systemInstruction = '', temperature = 0.7
           delay *= 2;
           continue;
         }
-        throw new Error(`API error: ${response.status}`);
+        const detail = await response.json().catch(() => ({}));
+        throw new Error(detail.error || `API error: ${response.status}`);
       }
       const result = await response.json();
-      const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      const text = result.text;
       if (text) return text;
       throw new Error("Empty response from AI");
     } catch (err) {
@@ -1064,9 +1044,8 @@ export default function App() {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else if (!auth.currentUser) {
+        await auth.authStateReady();
+        if (!auth.currentUser) {
           await signInAnonymously(auth);
         }
       } catch (err) {
@@ -1203,37 +1182,44 @@ export default function App() {
       (err) => console.error(err)
     );
 
+    // Social collections are queried per-user (not read whole) so firestore.rules
+    // can keep other people's requests, goals and DMs private.
     const unsubRequests = onSnapshot(
-      collection(db, 'artifacts', appId, 'public', 'data', 'friend_requests'),
+      query(
+        collection(db, 'artifacts', appId, 'public', 'data', 'friend_requests'),
+        where('toUid', '==', uid)
+      ),
       (snap) => {
         const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        setFriendRequests(all.filter(r => r.toUid === uid && r.status === 'pending'));
+        setFriendRequests(all.filter(r => r.status === 'pending'));
       },
       (err) => console.error(err)
     );
+
+    // Listens to two queries (field A == uid, field B == uid) and merges them.
+    const listenEitherSide = (collName, fieldA, fieldB, onData) => {
+      const ref = collection(db, 'artifacts', appId, 'public', 'data', collName);
+      const parts = { a: new Map(), b: new Map() };
+      const emit = () => onData([...new Map([...parts.a, ...parts.b]).values()]);
+      const sub = (key, field) => onSnapshot(
+        query(ref, where(field, '==', uid)),
+        (snap) => {
+          parts[key] = new Map(snap.docs.map(d => [d.id, { id: d.id, ...d.data() }]));
+          emit();
+        },
+        (err) => console.error(err)
+      );
+      const unsubA = sub('a', fieldA);
+      const unsubB = sub('b', fieldB);
+      return () => { unsubA(); unsubB(); };
+    };
 
     // Shared Goals
-    const unsubSharedGoals = onSnapshot(
-      collection(db, 'artifacts', appId, 'public', 'data', 'shared_goals'),
-      (snap) => {
-        const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        setSharedGoals(all.filter(g => g.ownerUid === uid || g.partnerUid === uid));
-      },
-      (err) => console.error(err)
-    );
+    const unsubSharedGoals = listenEitherSide('shared_goals', 'ownerUid', 'partnerUid', setSharedGoals);
 
     // Direct Messages
-    const unsubDMs = onSnapshot(
-      collection(db, 'artifacts', appId, 'public', 'data', 'direct_messages'),
-      (snap) => {
-        const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        setDirectMessages(
-          all
-            .filter(m => m.senderUid === uid || m.receiverUid === uid)
-            .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
-        );
-      },
-      (err) => console.error(err)
+    const unsubDMs = listenEitherSide('direct_messages', 'senderUid', 'receiverUid', (msgs) =>
+      setDirectMessages(msgs.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)))
     );
 
     return () => {
