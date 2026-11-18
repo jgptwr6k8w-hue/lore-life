@@ -2,6 +2,12 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 
+// Netlify's free plan injects this script, which shows a "Powered by Netlify" badge.
+// index.css leaves room for it under the mobile nav bar.
+if (document.querySelector('script[src*="/.netlify/scripts/hud"][data-nf-variant="public"]')) {
+  document.documentElement.classList.add('has-netlify-badge');
+}
+
 const root = createRoot(document.getElementById('root'));
 
 const requiredEnv = {
