@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* iPhone safe areas (viewport-fit=cover): extend the mobile top bar and bottom
+   nav into the notch / home-bar areas so they're filled with the theme color. */
+@media (max-width: 767px) {
+  .lore-top-bar {
+    padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+    padding-left: calc(1rem + env(safe-area-inset-left, 0px));
+    padding-right: calc(1rem + env(safe-area-inset-right, 0px));
+  }
+  .lore-bottom-nav {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  .lore-main {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+.lore-toast {
+  top: calc(1rem + env(safe-area-inset-top, 0px));
+}
+
 /* Netlify's free plan injects a "Powered by Netlify" badge (64px tall) in the
    bottom corner. When it's present, leave room under the mobile nav so the
    badge doesn't cover the buttons. The class is set in main.jsx. */
