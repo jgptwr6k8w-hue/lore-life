@@ -1025,6 +1025,22 @@ export default function App() {
   const [sharedGoalFriendUid, setSharedGoalFriendUid] = useState('');
 
   const currentTheme = THEMES[themeKey] || THEMES.midnight;
+
+  // Paint the page behind the app (iPhone notch / home-bar safe areas, overscroll)
+  // and the browser/status bar in the current theme's colors.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.backgroundColor = currentTheme.bg;
+    document.body.style.backgroundColor = currentTheme.bg;
+    root.style.colorScheme = currentTheme.mode === 'dark' ? 'dark' : 'light';
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      document.head.appendChild(meta);
+    }
+    meta.content = currentTheme.surface;
+  }, [currentTheme]);
   const t = TRANSLATIONS[lang] || TRANSLATIONS.ar;
   const isRTL = lang === 'ar';
 
@@ -1855,7 +1871,7 @@ Provide a structured report (in the same language as their entries, or English/A
       {/* Toast Notification */}
       {toastMsg && (
         <div
-          className={`fixed top-4 ${isRTL ? 'left-4' : 'right-4'} z-50 px-4 py-2.5 rounded-2xl shadow-2xl text-sm font-medium text-white flex items-center gap-2 animate-bounce`}
+          className={`lore-toast fixed top-4 ${isRTL ? 'left-4' : 'right-4'} z-50 px-4 py-2.5 rounded-2xl shadow-2xl text-sm font-medium text-white flex items-center gap-2 animate-bounce`}
           style={{ backgroundColor: 'var(--accent)' }}
         >
           <Sparkles className="w-4 h-4" />
@@ -1966,7 +1982,7 @@ Provide a structured report (in the same language as their entries, or English/A
       {/* MOBILE & IPAD PORTRAIT TOP BAR & BOTTOM NAVIGATION                   */}
       {/* ==================================================================== */}
       <header
-        className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 border-b backdrop-blur-md"
+        className="lore-top-bar md:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 border-b backdrop-blur-md"
         style={{ backgroundColor: currentTheme.surface, borderColor: currentTheme.border }}
       >
         <div className="flex items-center gap-2.5">
